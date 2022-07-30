@@ -1,10 +1,8 @@
 import app from "../src/app.js";
 import supertest from "supertest";
 import { prisma } from "../src/database.js";
-import {
-    exampleRecommendation,
-    createRecommendation,
-} from "./factory/recommendationFactory.js";
+import recommendationFactory from "./factory/recommendationFactory.js";
+import scenarioFactory from "./factory/scenarioFactory.js";
 
 beforeEach(async () => {
     await prisma.$executeRaw`TRUNCATE TABLE recommendations;`;
@@ -14,12 +12,12 @@ describe("POST /recommendations", () => {
     it("New recommendation", async () => {
         const tryRecommendation = await supertest(app)
             .post("/recommendations")
-            .send(exampleRecommendation);
+            .send(recommendationFactory.exampleRecommendation());
         expect(tryRecommendation.status).toEqual(201);
     });
 
     it("Recommendation without name", async () => {
-        const recommendation = exampleRecommendation();
+        const recommendation = recommendationFactory.exampleRecommendation();
         delete recommendation.name;
         const tryRecommendation = await supertest(app)
             .post("/recommendations")
@@ -28,7 +26,7 @@ describe("POST /recommendations", () => {
     });
 
     it("Recommendation without link", async () => {
-        const recommendation = exampleRecommendation();
+        const recommendation = recommendationFactory.exampleRecommendation();
         delete recommendation.youtubeLink;
         const tryRecommendation = await supertest(app)
             .post("/recommendations")
@@ -37,7 +35,7 @@ describe("POST /recommendations", () => {
     });
 
     it("Recommendation wrong link", async () => {
-        const recommendation = exampleRecommendation();
+        const recommendation = recommendationFactory.exampleRecommendation();
         recommendation.youtubeLink =
             "https://www.facebook.com/watch?v=chwyjJbcs1Y";
         const tryRecommendation = await supertest(app)
@@ -49,18 +47,39 @@ describe("POST /recommendations", () => {
 
 describe("POST /recommendations/:id/upvote", () => {
     it("Upvote recomendations", async () => {
-        const recomendation = await createRecommendation(
-            exampleRecommendation()
-        );
+        const recomendation =
+            await recommendationFactory.createRecommendation();
         const tryRecommendation = await supertest(app).post(
             `/recommendations/${recomendation.id}/upvote`
         );
-        expect(tryRecommendation.status).toEqual(200);
+        const recomendationUpdated =
+            recommendationFactory.getRecommendationById(recomendation.id);
+        expect((await recomendationUpdated).score).toEqual(1);
     });
 
     it("non-existent id", async () => {
         const tryRecommendation = await supertest(app).post(
             `/recommendations/1/upvote`
+        );
+        expect(tryRecommendation.status).toEqual(404);
+    });
+});
+
+describe("POST /recommendations/:id/donwvote", () => {
+    it("Downvote recomendations", async () => {
+        let score = 5;
+        const recomendation = await scenarioFactory.donwvoteScenario(score);
+        await supertest(app).post(
+            `/recommendations/${recomendation.id}/downvote`
+        );
+        const recomendationUpdated =
+            await recommendationFactory.getRecommendationById(recomendation.id);
+        expect(recomendationUpdated.score).toEqual(score - 1);
+    });
+
+    it("non-existent id", async () => {
+        const tryRecommendation = await supertest(app).post(
+            `/recommendations/1/downvote`
         );
         expect(tryRecommendation.status).toEqual(404);
     });
