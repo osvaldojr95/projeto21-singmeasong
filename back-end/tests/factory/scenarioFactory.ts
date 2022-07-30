@@ -1,4 +1,5 @@
 import { prisma } from "../../src/database.js";
+import { faker } from "@faker-js/faker";
 import recommendationFactory from "./recommendationFactory.js";
 
 async function donwvoteScenario(vote: number) {
@@ -15,9 +16,23 @@ async function getRecommendationsScenario() {
     }
 }
 
+async function getRecommendationsAmout() {
+    for (let i = 1; i < 5; i++) {
+        const recommendation = recommendationFactory.exampleRecommendation();
+        await prisma.recommendation.create({
+            data: {
+                name: recommendation.name,
+                youtubeLink: recommendation.youtubeLink,
+                score: i * 100,
+            },
+        });
+    }
+}
+
 const scenarioFactory = {
     donwvoteScenario,
     getRecommendationsScenario,
+    getRecommendationsAmout,
 };
 
 export default scenarioFactory;

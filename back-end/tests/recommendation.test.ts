@@ -109,11 +109,29 @@ describe("GET /recommendations/:id", () => {
 describe("GET /recommendations/random", () => {
     it("Verify random recommendation", async () => {
         await scenarioFactory.getRecommendationsScenario();
-        const getRandom = await supertest(app).get(
-            `/recommendations/random`
-        );
+        const getRandom = await supertest(app).get(`/recommendations/random`);
         expect(getRandom.body).not.toBeNull();
         expect(getRandom.status).toBe(200);
+    });
+
+    it("Verify random recommendation with no data", async () => {
+        const getRandom = await supertest(app).get(`/recommendations/random`);
+        expect(getRandom.status).toBe(404);
+    });
+});
+
+describe("GET /recommendations/top/:amout", () => {
+    it("Verify top recommendation by amout", async () => {
+        const amount = 2;
+        await scenarioFactory.getRecommendationsAmout();
+        const gerRecommendations = await supertest(app).get(
+            `/recommendations/top/${amount}`
+        );
+        expect(gerRecommendations.body).toHaveLength(amount);
+        expect(gerRecommendations.body[0].score).toBeGreaterThanOrEqual(
+            gerRecommendations.body[0].score
+        );
+        expect(gerRecommendations.status).toBe(200);
     });
 });
 
