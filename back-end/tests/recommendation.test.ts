@@ -90,6 +90,7 @@ describe("GET /recommendations", () => {
         await scenarioFactory.getRecommendationsScenario();
         const getRecommendations = await supertest(app).get(`/recommendations`);
         expect(getRecommendations.body).toHaveLength(10);
+        expect(getRecommendations.status).toBe(200);
     });
 });
 
@@ -102,6 +103,17 @@ describe("GET /recommendations/:id", () => {
         );
         expect(getRecommendation.body.name).toBe(recommendation.name);
         expect(getRecommendation.status).toBe(200);
+    });
+});
+
+describe("GET /recommendations/random", () => {
+    it("Verify random recommendation", async () => {
+        await scenarioFactory.getRecommendationsScenario();
+        const getRandom = await supertest(app).get(
+            `/recommendations/random`
+        );
+        expect(getRandom.body).not.toBeNull();
+        expect(getRandom.status).toBe(200);
     });
 });
 
