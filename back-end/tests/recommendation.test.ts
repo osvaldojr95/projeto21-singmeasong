@@ -89,8 +89,19 @@ describe("GET /recommendations", () => {
     it("Verify last 10 recommendations", async () => {
         await scenarioFactory.getRecommendationsScenario();
         const getRecommendations = await supertest(app).get(`/recommendations`);
-        console.log(getRecommendations.body);
         expect(getRecommendations.body).toHaveLength(10);
+    });
+});
+
+describe("GET /recommendations/:id", () => {
+    it("Verify recommendation by ID", async () => {
+        const recommendation =
+            await recommendationFactory.createRecommendation();
+        const getRecommendation = await supertest(app).get(
+            `/recommendations/${recommendation.id}`
+        );
+        expect(getRecommendation.body.name).toBe(recommendation.name);
+        expect(getRecommendation.status).toBe(200);
     });
 });
 
