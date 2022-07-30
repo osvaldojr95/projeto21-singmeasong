@@ -1,8 +1,9 @@
 import { prisma } from "../../src/database.js";
+import { faker } from "@faker-js/faker";
 
 function exampleRecommendation() {
     return {
-        name: "Falamansa - Xote dos Milagres",
+        name: faker.music.songName(),
         youtubeLink: "https://www.youtube.com/watch?v=chwyjJbcs1Y",
     };
 }
@@ -29,18 +30,10 @@ async function getRecommendationById(id: number) {
     });
 }
 
-async function setVoteRecommendationById(id: number, vote: number) {
-    return prisma.recommendation.update({
-        where: { id },
-        data: { score: vote },
-    });
-}
-
 const recommendationFactory = {
     exampleRecommendation,
     createRecommendation,
     getRecommendationById,
-    setVoteRecommendationById,
 };
 
 export default recommendationFactory;

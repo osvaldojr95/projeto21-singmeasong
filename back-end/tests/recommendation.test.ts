@@ -85,6 +85,15 @@ describe("POST /recommendations/:id/donwvote", () => {
     });
 });
 
+describe("GET /recommendations", () => {
+    it("Verify last 10 recommendations", async () => {
+        await scenarioFactory.getRecommendationsScenario();
+        const getRecommendations = await supertest(app).get(`/recommendations`);
+        console.log(getRecommendations.body);
+        expect(getRecommendations.body).toHaveLength(10);
+    });
+});
+
 afterAll(async () => {
     await prisma.$disconnect();
 });
