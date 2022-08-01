@@ -7,7 +7,9 @@
     "scripts": {
         "dev": "nodemon src/server.ts",
         "build": "tsc",
-        "test": "dotenv -e .env.test prisma migrate dev && cross-env NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest -- -i",
+        "test": "npm run test:integrations && npm run test:unit",
+        "test:integrations": "dotenv -e .env.test prisma migrate dev && cross-env NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest -- -i --testPathPattern=tests/integration",
+        "test:unit": "cross-env NODE_OPTIONS=--experimental-vm-modules dotenv -e .env.test jest -- -i --coverage --testPathPattern=tests/unit",
         "start": "node dist/src/server.js"
     },
     "keywords": [],

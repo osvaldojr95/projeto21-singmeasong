@@ -10,8 +10,8 @@ async function donwvoteScenario(vote: number) {
     });
 }
 
-async function getRecommendationsScenario() {
-    for (let i = 0; i < 12; i++) {
+async function getRecommendationsScenario(size = 12) {
+    for (let i = 0; i < size; i++) {
         await recommendationFactory.createRecommendation();
     }
 }

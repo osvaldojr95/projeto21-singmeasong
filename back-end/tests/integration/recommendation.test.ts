@@ -1,8 +1,8 @@
-import app from "../src/app.js";
+import app from "../../src/app.js";
 import supertest from "supertest";
-import { prisma } from "../src/database.js";
-import recommendationFactory from "./factory/recommendationFactory.js";
-import scenarioFactory from "./factory/scenarioFactory.js";
+import { prisma } from "../../src/database.js";
+import recommendationFactory from "../factory/recommendationFactory.js";
+import scenarioFactory from "../factory/scenarioFactory.js";
 
 beforeEach(async () => {
     await prisma.$executeRaw`TRUNCATE TABLE recommendations;`;
@@ -75,6 +75,17 @@ describe("POST /recommendations/:id/donwvote", () => {
         const recomendationUpdated =
             await recommendationFactory.getRecommendationById(recomendation.id);
         expect(recomendationUpdated.score).toEqual(score - 1);
+    });
+
+    it("Downvote recomendations with score = -5", async () => {
+        let score = -5;
+        const recomendation = await scenarioFactory.donwvoteScenario(score);
+        await supertest(app).post(
+            `/recommendations/${recomendation.id}/downvote`
+        );
+        const recomendationDeleted =
+            await recommendationFactory.getRecommendationById(recomendation.id);
+        expect(recomendationDeleted).toEqual(null);
     });
 
     it("non-existent id", async () => {
